@@ -134,7 +134,7 @@ export default function Home() {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               className='flex-grow p-3 bg-transparent focus:outline-none resize-none h-10 max-h-40 rounded-md'
-              placeholder='Message ChatGPT...'
+              placeholder='Message CoderHelper...'
               rows={1}
               onKeyDown={(e) => {
                 if (e.key === 'Enter' && !e.shiftKey) {

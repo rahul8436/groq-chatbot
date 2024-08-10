@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import Head from 'next/head';
 import axios from 'axios';
+import toast, { Toaster } from 'react-hot-toast';
 import SuggestionCards from '../components/SuggestionCards';
 import TypewriterEffect from '../components/TypewriterEffect';
 import CodeBlock from '../components/CodeBlock';
@@ -60,6 +61,26 @@ export default function Home() {
       ]);
     } catch (error) {
       console.error('Error:', error);
+      if (axios.isAxiosError(error)) {
+        if (error.response?.status === 429) {
+          toast.error('Rate limit exceeded. Please try again later.', {
+            position: 'bottom-right',
+          });
+        } else {
+          toast.error(
+            `An error occurred: ${
+              error.response?.data?.message || error.message
+            }`,
+            {
+              position: 'bottom-right',
+            }
+          );
+        }
+      } else {
+        toast.error('An unexpected error occurred. Please try again.', {
+          position: 'bottom-right',
+        });
+      }
     }
 
     setIsLoading(false);
@@ -197,6 +218,7 @@ export default function Home() {
           </div>
         </form>
       </main>
+      <Toaster />
       <style jsx>{`
         @keyframes slide-in {
           from {

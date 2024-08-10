@@ -6,32 +6,55 @@ import axios from 'axios';
 import SuggestionCards from '../components/SuggestionCards';
 import TypewriterEffect from '../components/TypewriterEffect';
 import CodeBlock from '../components/CodeBlock';
-import { FaUser, FaRobot } from 'react-icons/fa';
+import { FaUser, FaRobot, FaArrowDown } from 'react-icons/fa';
 
 export default function Home() {
   const [input, setInput] = useState('');
-  const [messages, setMessages] = useState<{ role: string; content: string }[]>(
-    []
-  );
+  const [conversation, setConversation] = useState<
+    { role: string; content: string }[]
+  >([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [showScrollButton, setShowScrollButton] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
 
-  // Scroll to bottom whenever messages change
   useEffect(() => {
+    const scrollContainer = scrollContainerRef.current;
+    if (scrollContainer) {
+      const handleScroll = () => {
+        const { scrollTop, scrollHeight, clientHeight } = scrollContainer;
+        setShowScrollButton(scrollHeight - scrollTop > clientHeight + 100);
+      };
+      scrollContainer.addEventListener('scroll', handleScroll);
+      return () => scrollContainer.removeEventListener('scroll', handleScroll);
+    }
+  }, []);
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [conversation]);
+
+  const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!input.trim()) return;
 
     setIsLoading(true);
-    setMessages((prev) => [...prev, { role: 'user', content: input }]);
+    const updatedConversation = [
+      ...conversation,
+      { role: 'user', content: input },
+    ];
+    setConversation(updatedConversation);
     setInput('');
 
     try {
-      const response = await axios.post('/api/chat', { message: input });
-      setMessages((prev) => [
+      const response = await axios.post('/api/chat', {
+        conversation: updatedConversation,
+      });
+      setConversation((prev) => [
         ...prev,
         { role: 'assistant', content: response.data.response },
       ]);
@@ -91,14 +114,14 @@ export default function Home() {
       </Head>
 
       <main className='flex-grow flex flex-col'>
-        {/* <div className='flex items-center p-4 border-b border-gray-700 bg-gray-800'>
-          <h1 className='text-lg font-bold'>CoderHelper</h1>
-        </div> */}
-        <div className='flex-grow overflow-y-auto p-6 space-y-4'>
-          {messages.length === 0 ? (
+        <div
+          ref={scrollContainerRef}
+          className='flex-grow overflow-y-auto p-6 space-y-4 relative'
+        >
+          {conversation.length === 0 ? (
             <SuggestionCards />
           ) : (
-            messages.map((message, index) => (
+            conversation.map((message, index) => (
               <div
                 key={index}
                 className={`flex items-start space-x-4 ${
@@ -124,6 +147,14 @@ export default function Home() {
           )}
           {isLoading && <div className='text-center'>Thinking...</div>}
           <div ref={messagesEndRef} />
+          {showScrollButton && (
+            <button
+              onClick={scrollToBottom}
+              className='fixed bottom-20 right-8 bg-blue-500 hover:bg-blue-600 text-white rounded-full p-2 shadow-lg transition-all duration-200 ease-in-out'
+            >
+              <FaArrowDown size={20} />
+            </button>
+          )}
         </div>
         <form
           onSubmit={handleSubmit}

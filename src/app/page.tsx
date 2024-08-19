@@ -8,6 +8,7 @@ import SuggestionCards from '../components/SuggestionCards';
 import TypewriterEffect from '../components/TypewriterEffect';
 import CodeBlock from '../components/CodeBlock';
 import { FaUser, FaRobot, FaArrowDown } from 'react-icons/fa';
+import TextareaAutosize from 'react-textarea-autosize';
 
 export default function Home() {
   const [input, setInput] = useState('');
@@ -128,7 +129,7 @@ export default function Home() {
   };
 
   return (
-    <div className='flex h-screen bg-gray-900 text-white'>
+    <div className='flex h-screen bg-gradient-to-b from-black via-gray-900 to-gray-800 text-white'>
       <Head>
         <title>CoderHelper</title>
         <link rel='icon' href='/favicon.ico' />
@@ -171,7 +172,7 @@ export default function Home() {
           {showScrollButton && (
             <button
               onClick={scrollToBottom}
-              className='fixed bottom-20 right-8 bg-blue-500 hover:bg-blue-600 text-white rounded-full p-2 shadow-lg transition-all duration-200 ease-in-out'
+              className='fixed bottom-20 right-8 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white rounded-full p-2 shadow-lg transition-all duration-200 ease-in-out'
             >
               <FaArrowDown size={20} />
             </button>
@@ -182,12 +183,13 @@ export default function Home() {
           className='p-4 border-t border-gray-700 bg-gray-800'
         >
           <div className='flex items-center bg-gray-700 rounded-lg'>
-            <textarea
+            <TextareaAutosize
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              className='flex-grow p-3 bg-transparent focus:outline-none resize-none h-10 max-h-40 rounded-md'
+              className='flex-grow p-3 bg-transparent focus:outline-none resize-none text-gray-200 rounded-md h-10 max-h-40'
               placeholder='Message CoderHelper...'
-              rows={1}
+              minRows={1}
+              maxRows={6} // Adjust this to control how much the input can extend
               onKeyDown={(e) => {
                 if (e.key === 'Enter' && !e.shiftKey) {
                   e.preventDefault();
@@ -232,6 +234,19 @@ export default function Home() {
         }
         .animate-slide-in {
           animation: slide-in 0.3s ease-out;
+        }
+        body {
+          background-color: #000;
+          color: #fff;
+        }
+        .bg-gray-700 {
+          background: linear-gradient(145deg, #333, #555);
+        }
+        .bg-gray-800 {
+          background: linear-gradient(145deg, #222, #444);
+        }
+        .bg-blue-600 {
+          background: linear-gradient(145deg, #0066cc, #0055aa);
         }
       `}</style>
     </div>

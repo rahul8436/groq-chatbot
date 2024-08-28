@@ -10,7 +10,7 @@ interface TypewriterEffectProps {
 
 const TypewriterEffect: React.FC<TypewriterEffectProps> = ({
   text,
-  delay = 3,
+  delay = 0,
 }) => {
   const [currentText, setCurrentText] = useState('');
   const [currentIndex, setCurrentIndex] = useState(0);

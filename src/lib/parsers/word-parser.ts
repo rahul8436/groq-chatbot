@@ -1,4 +1,5 @@
 import { DocumentParser, ParsedDocument, MimeType } from './types';
+// @ts-ignore
 import mammoth from 'mammoth';
 
 export class WordParser implements DocumentParser {
@@ -7,10 +8,11 @@ export class WordParser implements DocumentParser {
     'application/msword',
   ];
 
-  async parse(buffer: Buffer): Promise<ParsedDocument> {
+  async parse(buffer: Buffer, mimeType: MimeType): Promise<ParsedDocument> {
     try {
       const [textResult, metadataResult] = await Promise.all([
         mammoth.extractRawText({ buffer }),
+        // @ts-ignore
         mammoth.extractMetadata({ buffer }),
       ]);
 

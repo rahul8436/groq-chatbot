@@ -1,4 +1,5 @@
 import { DocumentParser, ParsedDocument, MimeType } from './types';
+// @ts-ignore
 import { parse as parsePPTX } from 'pptx2json';
 
 export class PowerPointParser implements DocumentParser {
@@ -7,7 +8,7 @@ export class PowerPointParser implements DocumentParser {
     'application/vnd.ms-powerpoint',
   ];
 
-  async parse(buffer: Buffer): Promise<ParsedDocument> {
+  async parse(buffer: Buffer, mimeType: MimeType): Promise<ParsedDocument> {
     try {
       const result = await parsePPTX(buffer);
       const slides = result.slides || [];

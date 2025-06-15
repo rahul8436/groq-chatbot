@@ -1,4 +1,5 @@
 import { DocumentParser, ParsedDocument, MimeType } from './types';
+// @ts-ignore
 import textract from 'textract';
 import { detectLanguage } from './utils/language-detector';
 

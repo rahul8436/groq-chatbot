@@ -19,15 +19,21 @@ export class ExcelParser implements DocumentParser {
         content.push(`Sheet: ${sheetName}\n${JSON.stringify(data, null, 2)}`);
       });
 
+      const metadata = {
+        properties: {
+          title: workbook.Props?.Title,
+          author: workbook.Props?.Author,
+          creationDate: workbook.Props?.CreatedDate?.toISOString(),
+          modificationDate: workbook.Props?.ModifiedDate?.toISOString(),
+        },
+      };
+
       return {
         text: content.join('\n\n'),
         metadata: {
           sheets: sheets,
           tables: sheets.length,
-          title: workbook.Props?.Title,
-          author: workbook.Props?.Author,
-          creationDate: workbook.Props?.CreatedDate,
-          modificationDate: workbook.Props?.ModifiedDate,
+          ...metadata.properties,
         },
       };
     } catch (error) {

@@ -53,7 +53,7 @@ export default async function handler(
     ) {
       try {
         const parsedFiles = await Promise.all(
-          lastUserMessage.attachments.map(async (file) => {
+          lastUserMessage.attachments.map(async (file: FileAttachment) => {
             try {
               return await documentParser.parseFile(file);
             } catch (error) {
@@ -90,7 +90,7 @@ export default async function handler(
       });
 
       return res.status(200).json({
-        response: completion.choices[0].message.content,
+        response: completion.choices[0].message.content || '',
       });
     } catch (error) {
       console.error('Groq API error:', error);

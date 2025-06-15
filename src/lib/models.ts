@@ -186,7 +186,7 @@ export const models: ModelConfig[] = [
 ];
 
 export const defaultModel = models.find(
-  (m) => m.id === 'llama-3.1-8b-instant'
+  (m) => m.id === 'llama-3.3-70b-versatile'
 )!;
 
 export const getModelsByCategory = (category: ModelConfig['category']) => {

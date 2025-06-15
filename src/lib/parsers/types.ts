@@ -24,7 +24,7 @@ export interface DocumentMetadata {
 }
 
 export interface DocumentParser {
-  parse(buffer: Buffer): Promise<ParsedDocument>;
+  parse(buffer: Buffer, mimeType: MimeType): Promise<ParsedDocument>;
   supportedTypes: MimeType[];
 }
 
@@ -36,6 +36,19 @@ export interface ParserResult {
   content?: string;
   language?: Language;
   metadata?: DocumentMetadata;
+}
+
+export interface ApiResponse {
+  response?: string;
+  error?: string;
+  details?: string;
+}
+
+export interface FileAttachment {
+  name: string;
+  type: MimeType;
+  size: number;
+  content: string;
 }
 
 export const DOCUMENT_TYPES = {

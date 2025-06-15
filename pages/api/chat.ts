@@ -10,12 +10,14 @@ export default async function handler(
   res: NextApiResponse
 ) {
   if (req.method === 'POST') {
-    const { conversation } = req.body;
+    const { conversation, model = 'llama3-8b-8192' } = req.body;
 
     try {
       const completion = await groq.chat.completions.create({
         messages: conversation,
-        model: 'llama3-8b-8192',
+        model: model,
+        temperature: 0.7,
+        max_tokens: 1024,
       });
 
       res.status(200).json({ response: completion.choices[0].message.content });

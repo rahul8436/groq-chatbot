@@ -25,6 +25,8 @@ import { useConversations } from '../context/ConversationsContext';
 import LoginForm from '../components/LoginForm';
 import Sidebar from '../components/Sidebar';
 import UserAvatar from '../components/UserAvatar';
+import ModelSelector from '../components/ModelSelector';
+import { defaultModel } from '@/lib/models';
 
 export default function Home() {
   const [input, setInput] = useState('');
@@ -43,6 +45,7 @@ export default function Home() {
     type: 'warning',
     onConfirm: () => {},
   });
+  const [selectedModel, setSelectedModel] = useState(defaultModel);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
@@ -91,6 +94,7 @@ export default function Home() {
     try {
       const response = await axios.post('/api/chat', {
         conversation: updatedMessages,
+        model: selectedModel.id,
       });
       updateConversation(currentConversation.id, [
         ...updatedMessages,
@@ -148,12 +152,34 @@ export default function Home() {
 
       <Sidebar />
 
-      <main className='flex-grow flex flex-col max-w-4xl mx-auto w-full'>
-        <div className='flex items-center justify-between py-4 px-4 border-b border-gray-200 dark:border-gray-700'>
-          <h1 className='text-xl font-semibold text-gray-900 dark:text-gray-200'>
-            CoderHelper
-          </h1>
-          <div className='flex items-center space-x-2'>
+      <main className='flex-1 flex flex-col h-screen'>
+        <div className='flex items-center p-4 border-b border-gray-200 dark:border-gray-700'>
+          <div className='flex items-center gap-4'>
+            <ModelSelector
+              selectedModel={selectedModel}
+              onModelChange={setSelectedModel}
+            />
+          </div>
+          <div className='flex-1' />
+          <div className='flex items-center gap-2'>
+            <button
+              onClick={() => {
+                setAlertConfig({
+                  title: 'Clear Chat',
+                  message: 'Are you sure you want to clear this conversation?',
+                  type: 'warning',
+                  onConfirm: () => {
+                    if (currentConversation) {
+                      updateConversation(currentConversation.id, []);
+                    }
+                  },
+                });
+                setShowAlert(true);
+              }}
+              className='text-sm text-gray-400 hover:text-white'
+            >
+              Clear Chat
+            </button>
             <button
               onClick={() => setShowCommandPalette(true)}
               className='p-2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-white focus:outline-none transition-colors duration-200'
@@ -244,7 +270,7 @@ export default function Home() {
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 className='flex-grow p-4 bg-transparent focus:outline-none resize-none text-gray-900 dark:text-gray-200 rounded-md min-h-[52px] max-h-40'
-                placeholder='Message CoderHelper...'
+                placeholder='Ask anything...'
                 minRows={1}
                 maxRows={6}
                 onKeyDown={(e) => {

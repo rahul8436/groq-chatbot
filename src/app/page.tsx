@@ -259,6 +259,13 @@ export default function Home() {
           <div className='flex-1' />
           <div className='flex items-center gap-2'>
             <button
+              onClick={() => setShowFeedback(true)}
+              className='p-2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-white focus:outline-none transition-colors duration-200'
+              title='Send Feedback'
+            >
+              <FaComments size={20} />
+            </button>
+            <button
               onClick={() => {
                 setAlertConfig({
                   title: 'Clear Chat',
@@ -452,15 +459,6 @@ export default function Home() {
             </div>
           </form>
         )}
-
-        {/* Add feedback button */}
-        <button
-          onClick={() => setShowFeedback(true)}
-          className='fixed bottom-4 right-4 p-3 bg-blue-600 text-white rounded-full shadow-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors'
-          title='Send Feedback'
-        >
-          <FaComments className='h-6 w-6' />
-        </button>
 
         {/* Feedback form modal */}
         {showFeedback && (

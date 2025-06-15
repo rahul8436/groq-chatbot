@@ -1,7 +1,8 @@
 'use client';
 
 import React from 'react';
-import { ModelConfig, getModelsByCategory } from '@/lib/models';
+import { ModelConfig } from '@/lib/types';
+import { getModelsByCategory } from '@/lib/models';
 import { FaChevronDown } from 'react-icons/fa';
 
 interface ModelSelectorProps {

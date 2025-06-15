@@ -1,13 +1,4 @@
-export interface ModelConfig {
-  id: string;
-  name: string;
-  developer: string;
-  contextWindow?: number;
-  maxCompletionTokens?: number;
-  maxFileSize?: number;
-  category: 'chat' | 'audio' | 'guard';
-  isProduction?: boolean;
-}
+import { ModelConfig } from './types';
 
 export const models: ModelConfig[] = [
   // Production Models
@@ -194,7 +185,9 @@ export const models: ModelConfig[] = [
   },
 ];
 
-export const defaultModel = models.find((m) => m.id === 'compound-beta')!;
+export const defaultModel = models.find(
+  (m) => m.id === 'llama-3.1-8b-instant'
+)!;
 
 export const getModelsByCategory = (category: ModelConfig['category']) => {
   return models.filter((m) => m.category === category);

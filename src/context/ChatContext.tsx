@@ -5,7 +5,8 @@ import React, {
   useCallback,
   ReactNode,
 } from 'react';
-import { Message, defaultModel, ModelConfig } from '@/lib/models';
+import { Message, ModelConfig } from '@/lib/types';
+import { defaultModel } from '@/lib/models';
 
 // ... existing interfaces ...
 

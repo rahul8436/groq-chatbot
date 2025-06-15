@@ -13,7 +13,7 @@ import * as blazeface from '@tensorflow-models/blazeface';
 // @ts-ignore
 import * as mobilenet from '@tensorflow-models/mobilenet';
 // @ts-ignore
-import { createWorker, Worker, Scheduler } from 'tesseract.js';
+import { createWorker, Worker, createScheduler, Scheduler } from 'tesseract.js';
 import { tessdata } from 'tessdata';
 
 interface TableCell {
@@ -55,9 +55,15 @@ export class ImageParser implements DocumentParser {
 
   // @ts-ignore
   constructor() {
-    this.scheduler = createScheduler();
-    this.initWorkers();
-    this.initModels();
+    try {
+      this.scheduler = createScheduler();
+      this.initWorkers().catch(console.error);
+      this.initModels().catch(console.error);
+    } catch (error) {
+      console.error('Error initializing ImageParser:', error);
+      // Initialize with empty scheduler to prevent crashes
+      this.scheduler = createScheduler();
+    }
   }
 
   // @ts-ignore
@@ -67,8 +73,7 @@ export class ImageParser implements DocumentParser {
       for (const lang of this.supportedLanguages) {
         // @ts-ignore
         const worker = await createWorker({
-          // Use Tesseract.js's built-in data loading
-          logger: m => console.log(m)
+          logger: (m) => console.log(m),
         });
         // @ts-ignore
         await worker.loadLanguage(lang);
@@ -79,14 +84,15 @@ export class ImageParser implements DocumentParser {
       }
     } catch (error) {
       console.error('Error initializing Tesseract workers:', error);
+      // Don't throw - allow parser to work without OCR
     }
   }
 
   // @ts-ignore
   private async initModels() {
     try {
-      // Initialize models in parallel
-      const [objectModel, faceModel, classModel] = await Promise.all([
+      // Load models in parallel
+      const [objectModel, faceModel, classificationModel] = await Promise.all([
         cocoSsd.load(),
         blazeface.load(),
         mobilenet.load(),
@@ -94,9 +100,10 @@ export class ImageParser implements DocumentParser {
 
       this.objectDetectionModel = objectModel;
       this.faceDetectionModel = faceModel;
-      this.classificationModel = classModel;
+      this.classificationModel = classificationModel;
     } catch (error) {
       console.error('Error initializing TensorFlow models:', error);
+      // Don't throw - allow parser to work without ML features
     }
   }
 

@@ -26,6 +26,7 @@ import Sidebar from '../components/Sidebar';
 import UserAvatar from '../components/UserAvatar';
 import ModelSelector from '../components/ModelSelector';
 import { defaultModel } from '@/lib/models';
+import Image from 'next/image';
 
 export default function Home() {
   const [input, setInput] = useState('');
@@ -366,10 +367,12 @@ export default function Home() {
                     className='flex items-center gap-2 bg-gray-100 dark:bg-gray-700/50 rounded-lg px-3 py-1.5 text-sm'
                   >
                     {attachment.type.startsWith('image/') ? (
-                      <img
-                        src={attachment.url}
+                      <Image
+                        src={attachment.url || ''}
                         alt={attachment.name}
-                        className='h-6 w-6 object-cover rounded'
+                        width={24}
+                        height={24}
+                        className='object-cover rounded'
                       />
                     ) : (
                       <FaPaperclip className='h-4 w-4 text-gray-500' />

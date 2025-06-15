@@ -11,6 +11,7 @@ import {
 import { FaCopy, FaCheck, FaPaperclip, FaDownload } from 'react-icons/fa';
 import { useTheme } from '../context/ThemeContext';
 import { FileAttachment } from '@/lib/types';
+import Image from 'next/image';
 
 interface CodeBlockProps {
   language: string;
@@ -81,11 +82,13 @@ const MarkdownMessage: React.FC<MarkdownMessageProps> = ({
             >
               {attachment.type.startsWith('image/') ? (
                 <div className='relative group'>
-                  <img
-                    src={attachment.url}
+                  <Image
+                    src={attachment.url || ''}
                     alt={attachment.name}
-                    className='h-16 w-16 object-cover rounded cursor-pointer'
-                    onClick={() => window.open(attachment.url, '_blank')}
+                    width={64}
+                    height={64}
+                    className='object-cover rounded cursor-pointer'
+                    onClick={() => window.open(attachment.url || '', '_blank')}
                   />
                   <div className='absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-opacity duration-200 rounded flex items-center justify-center opacity-0 group-hover:opacity-100'>
                     <button

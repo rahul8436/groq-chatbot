@@ -13,7 +13,8 @@ import * as blazeface from '@tensorflow-models/blazeface';
 // @ts-ignore
 import * as mobilenet from '@tensorflow-models/mobilenet';
 // @ts-ignore
-import { createWorker, Worker, createScheduler } from 'tesseract.js';
+import { createWorker, Worker, Scheduler } from 'tesseract.js';
+import { tessdata } from 'tessdata';
 
 interface TableCell {
   text: string;
@@ -29,7 +30,7 @@ interface Table {
 // @ts-ignore
 export class ImageParser implements DocumentParser {
   // @ts-ignore
-  private scheduler: Tesseract.Scheduler;
+  private scheduler: Scheduler;
   // @ts-ignore
   private workers: Worker[] = [];
   private readonly supportedLanguages = [
@@ -64,7 +65,11 @@ export class ImageParser implements DocumentParser {
     try {
       // Initialize workers for each language
       for (const lang of this.supportedLanguages) {
-        const worker = await createWorker(lang);
+        // @ts-ignore
+        const worker = await createWorker({
+          // Use Tesseract.js's built-in data loading
+          logger: m => console.log(m)
+        });
         // @ts-ignore
         await worker.loadLanguage(lang);
         // @ts-ignore

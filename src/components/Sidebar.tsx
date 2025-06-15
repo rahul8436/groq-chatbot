@@ -1,14 +1,14 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useConversations } from '../context/ConversationsContext';
 import { useUser } from '../context/UserContext';
 import {
   FaPlus,
   FaTrash,
   FaSignOutAlt,
-  FaHistory,
   FaBroom,
+  FaSearch,
 } from 'react-icons/fa';
 import { toast } from 'react-hot-toast';
 import AlertDialog from './AlertDialog';
@@ -26,6 +26,7 @@ export default function Sidebar() {
   } = useConversations();
   const { user, logout } = useUser();
   const [showAlert, setShowAlert] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
   const [alertConfig, setAlertConfig] = useState<{
     title: string;
     message: string;
@@ -37,6 +38,22 @@ export default function Sidebar() {
     type: 'warning',
     onConfirm: () => {},
   });
+
+  // Filter conversations based on search query
+  const filteredConversations = useMemo(() => {
+    if (!searchQuery.trim()) return conversations;
+
+    const query = searchQuery.toLowerCase();
+    return conversations.filter((conversation) => {
+      // Search in title
+      if (conversation.title.toLowerCase().includes(query)) return true;
+
+      // Search in messages
+      return conversation.messages.some((message) =>
+        message.content.toLowerCase().includes(query)
+      );
+    });
+  }, [conversations, searchQuery]);
 
   const handleLogout = () => {
     setAlertConfig({
@@ -101,7 +118,7 @@ export default function Sidebar() {
         </div>
       </div>
 
-      <div className='p-4'>
+      <div className='p-4 space-y-4'>
         <button
           onClick={createConversation}
           className='w-full flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors duration-200'
@@ -109,39 +126,58 @@ export default function Sidebar() {
           <FaPlus size={14} />
           New Chat
         </button>
+
+        <div className='relative'>
+          <div className='absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none'>
+            <FaSearch className='h-4 w-4 text-gray-400' />
+          </div>
+          <input
+            type='text'
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder='Search conversations...'
+            className='w-full pl-10 pr-4 py-2 text-sm bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500'
+          />
+        </div>
       </div>
 
       <div className='flex-1 overflow-y-auto'>
         <div className='px-4 space-y-2'>
-          {conversations.map((conversation) => (
-            <div
-              key={conversation.id}
-              className={`group flex items-center justify-between p-2 rounded-lg cursor-pointer ${
-                currentConversation?.id === conversation.id
-                  ? 'bg-blue-100 dark:bg-blue-900/20'
-                  : 'hover:bg-gray-100 dark:hover:bg-gray-700/50'
-              }`}
-              onClick={() => setCurrentConversation(conversation)}
-            >
-              <div className='flex-1 min-w-0'>
-                <p className='text-sm font-medium text-gray-900 dark:text-white truncate'>
-                  {conversation.title}
-                </p>
-                <p className='text-xs text-gray-500 dark:text-gray-400'>
-                  {new Date(conversation.timestamp).toLocaleString()}
-                </p>
-              </div>
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleDeleteConversation(conversation.id);
-                }}
-                className='p-1 text-gray-400 hover:text-red-600 dark:hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity duration-200'
-              >
-                <FaTrash size={14} />
-              </button>
+          {filteredConversations.length === 0 ? (
+            <div className='text-center py-4 text-gray-500 dark:text-gray-400 text-sm'>
+              {searchQuery ? 'No conversations found' : 'No conversations yet'}
             </div>
-          ))}
+          ) : (
+            filteredConversations.map((conversation) => (
+              <div
+                key={conversation.id}
+                className={`group flex items-center justify-between p-2 rounded-lg cursor-pointer ${
+                  currentConversation?.id === conversation.id
+                    ? 'bg-blue-100 dark:bg-blue-900/20'
+                    : 'hover:bg-gray-100 dark:hover:bg-gray-700/50'
+                }`}
+                onClick={() => setCurrentConversation(conversation)}
+              >
+                <div className='flex-1 min-w-0'>
+                  <p className='text-sm font-medium text-gray-900 dark:text-white truncate'>
+                    {conversation.title}
+                  </p>
+                  <p className='text-xs text-gray-500 dark:text-gray-400'>
+                    {new Date(conversation.timestamp).toLocaleString()}
+                  </p>
+                </div>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleDeleteConversation(conversation.id);
+                  }}
+                  className='p-1 text-gray-400 hover:text-red-600 dark:hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity duration-200'
+                >
+                  <FaTrash size={14} />
+                </button>
+              </div>
+            ))
+          )}
         </div>
       </div>
 

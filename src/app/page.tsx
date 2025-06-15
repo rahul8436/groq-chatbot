@@ -6,14 +6,13 @@ import axios from 'axios';
 import { toast, Toaster } from 'react-hot-toast';
 import SuggestionCards from '../components/SuggestionCards';
 import MarkdownMessage from '../components/MarkdownMessage';
+import { FileAttachment } from '@/lib/types';
 import {
-  FaUser,
   FaRobot,
   FaArrowDown,
-  FaHistory,
-  FaTrash,
-  FaSave,
   FaKeyboard,
+  FaPaperclip,
+  FaTimes,
 } from 'react-icons/fa';
 import TextareaAutosize from 'react-textarea-autosize';
 import ThemeToggle from '../components/ThemeToggle';
@@ -46,6 +45,8 @@ export default function Home() {
     onConfirm: () => {},
   });
   const [selectedModel, setSelectedModel] = useState(defaultModel);
+  const [attachments, setAttachments] = useState<FileAttachment[]>([]);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
@@ -54,6 +55,22 @@ export default function Home() {
   const { user } = useUser();
   const { currentConversation, updateConversation, createConversation } =
     useConversations();
+
+  const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+  const ALLOWED_FILE_TYPES = [
+    'text/plain',
+    'application/json',
+    'application/pdf',
+    'image/jpeg',
+    'image/png',
+    'image/gif',
+    'text/markdown',
+    'text/x-python',
+    'text/javascript',
+    'text/typescript',
+    'text/html',
+    'text/css',
+  ];
 
   useEffect(() => {
     const handleScroll = () => {
@@ -79,17 +96,86 @@ export default function Home() {
     scrollToBottom();
   }, [currentConversation?.messages]);
 
+  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files) return;
+
+    const newAttachments: FileAttachment[] = [];
+    const errors: string[] = [];
+
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+
+      if (file.size > MAX_FILE_SIZE) {
+        errors.push(`${file.name} is too large (max 5MB)`);
+        continue;
+      }
+
+      if (!ALLOWED_FILE_TYPES.includes(file.type)) {
+        errors.push(`${file.name} is not a supported file type`);
+        continue;
+      }
+
+      try {
+        const content = await readFileAsBase64(file);
+        const attachment: FileAttachment = {
+          name: file.name,
+          type: file.type,
+          size: file.size,
+          content,
+          url: file.type.startsWith('image/') ? content : undefined,
+        };
+        newAttachments.push(attachment);
+      } catch (error) {
+        errors.push(`Failed to read ${file.name}`);
+      }
+    }
+
+    if (errors.length > 0) {
+      toast.error(errors.join('\n'), { duration: 5000 });
+    }
+
+    if (newAttachments.length > 0) {
+      setAttachments((prev) => [...prev, ...newAttachments]);
+    }
+
+    // Reset file input
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
+  const readFileAsBase64 = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const removeAttachment = (index: number) => {
+    setAttachments((prev) => prev.filter((_, i) => i !== index));
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!input.trim() || !currentConversation) return;
+    if ((!input.trim() && attachments.length === 0) || !currentConversation)
+      return;
 
     setIsLoading(true);
     const updatedMessages = [
       ...currentConversation.messages,
-      { role: 'user', content: input },
+      {
+        role: 'user',
+        content: input,
+        timestamp: new Date().toISOString(),
+        attachments: attachments.length > 0 ? attachments : undefined,
+      },
     ];
     updateConversation(currentConversation.id, updatedMessages);
     setInput('');
+    setAttachments([]);
 
     try {
       const response = await axios.post('/api/chat', {
@@ -98,7 +184,11 @@ export default function Home() {
       });
       updateConversation(currentConversation.id, [
         ...updatedMessages,
-        { role: 'assistant', content: response.data.response },
+        {
+          role: 'assistant',
+          content: response.data.response,
+          timestamp: new Date().toISOString(),
+        },
       ]);
     } catch (error) {
       console.error('Error:', error);
@@ -227,7 +317,10 @@ export default function Home() {
                       : 'bg-gray-100 dark:bg-gray-700/50'
                   }`}
                 >
-                  <MarkdownMessage content={message.content} />
+                  <MarkdownMessage
+                    content={message.content}
+                    attachments={message.attachments}
+                  />
                 </div>
               </div>
             ))
@@ -265,7 +358,53 @@ export default function Home() {
             onSubmit={handleSubmit}
             className='p-4 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-[#343541]'
           >
+            {attachments.length > 0 && (
+              <div className='mb-2 flex flex-wrap gap-2'>
+                {attachments.map((attachment, index) => (
+                  <div
+                    key={index}
+                    className='flex items-center gap-2 bg-gray-100 dark:bg-gray-700/50 rounded-lg px-3 py-1.5 text-sm'
+                  >
+                    {attachment.type.startsWith('image/') ? (
+                      <img
+                        src={attachment.url}
+                        alt={attachment.name}
+                        className='h-6 w-6 object-cover rounded'
+                      />
+                    ) : (
+                      <FaPaperclip className='h-4 w-4 text-gray-500' />
+                    )}
+                    <span className='text-gray-700 dark:text-gray-300 truncate max-w-[150px]'>
+                      {attachment.name}
+                    </span>
+                    <button
+                      type='button'
+                      onClick={() => removeAttachment(index)}
+                      className='text-gray-500 hover:text-red-500 dark:hover:text-red-400'
+                    >
+                      <FaTimes className='h-3 w-3' />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
             <div className='flex items-center bg-gray-100 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600 focus-within:border-gray-300 dark:focus-within:border-gray-500 transition-colors duration-200'>
+              <input
+                type='file'
+                ref={fileInputRef}
+                onChange={handleFileSelect}
+                multiple
+                accept={ALLOWED_FILE_TYPES.join(',')}
+                className='hidden'
+              />
+              <button
+                type='button'
+                onClick={() => fileInputRef.current?.click()}
+                className='p-4 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-white focus:outline-none transition-colors duration-200'
+                title='Attach files'
+              >
+                <FaPaperclip size={20} />
+              </button>
               <TextareaAutosize
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
@@ -283,7 +422,9 @@ export default function Home() {
               <button
                 type='submit'
                 className='p-4 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-white focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200'
-                disabled={isLoading}
+                disabled={
+                  isLoading || (!input.trim() && attachments.length === 0)
+                }
               >
                 <svg
                   xmlns='http://www.w3.org/2000/svg'

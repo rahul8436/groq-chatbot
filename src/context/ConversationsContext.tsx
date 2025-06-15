@@ -2,10 +2,13 @@
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { useUser } from './UserContext';
+import { FileAttachment } from '@/lib/types';
 
 export interface Message {
   role: string;
   content: string;
+  timestamp: string;
+  attachments?: FileAttachment[];
 }
 
 export interface Conversation {

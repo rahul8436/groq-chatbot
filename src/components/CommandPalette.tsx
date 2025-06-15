@@ -52,7 +52,7 @@ const CommandPalette: React.FC<CommandPaletteProps> = ({
     onConfirm: () => {},
   });
 
-  const handleClearConversation = () => {
+  const handleClearConversation = useCallback(() => {
     setAlertConfig({
       title: 'Clear Conversation',
       message:
@@ -64,7 +64,7 @@ const CommandPalette: React.FC<CommandPaletteProps> = ({
       },
     });
     setShowAlert(true);
-  };
+  }, [onClearConversation, onClose]);
 
   const commands: Command[] = [
     {

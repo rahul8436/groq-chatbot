@@ -35,6 +35,7 @@ const CodeBlock: React.FC<CodeBlockProps> = ({ language, value }) => {
       >
         {copied ? <FaCheck size={14} /> : <FaCopy size={14} />}
       </button>
+      {/* @ts-ignore */}
       <SyntaxHighlighter
         language={language}
         style={theme === 'dark' ? vscDarkPlus : vs}

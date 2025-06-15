@@ -23,67 +23,67 @@ interface SuggestionCardsProps {
   onSuggestionClick: (prompt: string) => void;
 }
 
+const allSuggestions: Suggestion[] = [
+  {
+    icon: <FaCode className='w-6 h-6' />,
+    title: 'Debug my code',
+    prompt: 'Help me debug this code and suggest improvements',
+    category: 'coding',
+  },
+  {
+    icon: <FaRobot className='w-6 h-6' />,
+    title: 'Explain AI concepts',
+    prompt: 'Explain the key concepts of machine learning in simple terms',
+    category: 'learning',
+  },
+  {
+    icon: <FaLightbulb className='w-6 h-6' />,
+    title: 'Brainstorm ideas',
+    prompt: 'Help me brainstorm creative ideas for my project',
+    category: 'productivity',
+  },
+  {
+    icon: <FaBook className='w-6 h-6' />,
+    title: 'Learn a new language',
+    prompt: 'Create a study plan for learning a new programming language',
+    category: 'learning',
+  },
+  {
+    icon: <FaTools className='w-6 h-6' />,
+    title: 'Code optimization',
+    prompt: 'How can I optimize this code for better performance?',
+    category: 'coding',
+  },
+  {
+    icon: <FaQuestion className='w-6 h-6' />,
+    title: 'Solve a problem',
+    prompt: 'Help me solve this technical problem step by step',
+    category: 'general',
+  },
+  {
+    icon: <FaRocket className='w-6 h-6' />,
+    title: 'Project planning',
+    prompt: 'Help me plan the architecture for my new project',
+    category: 'productivity',
+  },
+  {
+    icon: <FaBrain className='w-6 h-6' />,
+    title: 'Algorithm help',
+    prompt: 'Explain this algorithm and suggest improvements',
+    category: 'coding',
+  },
+];
+
 const SuggestionCards: React.FC<SuggestionCardsProps> = ({
   onSuggestionClick,
 }) => {
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
 
-  const allSuggestions: Suggestion[] = [
-    {
-      icon: <FaCode className='w-6 h-6' />,
-      title: 'Debug my code',
-      prompt: 'Help me debug this code and suggest improvements',
-      category: 'coding',
-    },
-    {
-      icon: <FaRobot className='w-6 h-6' />,
-      title: 'Explain AI concepts',
-      prompt: 'Explain the key concepts of machine learning in simple terms',
-      category: 'learning',
-    },
-    {
-      icon: <FaLightbulb className='w-6 h-6' />,
-      title: 'Brainstorm ideas',
-      prompt: 'Help me brainstorm creative ideas for my project',
-      category: 'productivity',
-    },
-    {
-      icon: <FaBook className='w-6 h-6' />,
-      title: 'Learn a new language',
-      prompt: 'Create a study plan for learning a new programming language',
-      category: 'learning',
-    },
-    {
-      icon: <FaTools className='w-6 h-6' />,
-      title: 'Code optimization',
-      prompt: 'How can I optimize this code for better performance?',
-      category: 'coding',
-    },
-    {
-      icon: <FaQuestion className='w-6 h-6' />,
-      title: 'Solve a problem',
-      prompt: 'Help me solve this technical problem step by step',
-      category: 'general',
-    },
-    {
-      icon: <FaRocket className='w-6 h-6' />,
-      title: 'Project planning',
-      prompt: 'Help me plan the architecture for my new project',
-      category: 'productivity',
-    },
-    {
-      icon: <FaBrain className='w-6 h-6' />,
-      title: 'Algorithm help',
-      prompt: 'Explain this algorithm and suggest improvements',
-      category: 'coding',
-    },
-  ];
-
   useEffect(() => {
-    // Shuffle and select 4 random suggestions
+    // Shuffle and select 4 random suggestions only once when component mounts
     const shuffled = [...allSuggestions].sort(() => Math.random() - 0.5);
     setSuggestions(shuffled.slice(0, 4));
-  }, []);
+  }, []); // Empty dependency array means this only runs once on mount
 
   return (
     <div className='space-y-4'>

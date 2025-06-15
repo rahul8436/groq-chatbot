@@ -13,6 +13,9 @@ import {
   FaKeyboard,
   FaPaperclip,
   FaTimes,
+  FaDownload,
+  FaInfoCircle,
+  FaComments,
 } from 'react-icons/fa';
 import TextareaAutosize from 'react-textarea-autosize';
 import ThemeToggle from '../components/ThemeToggle';
@@ -27,6 +30,7 @@ import UserAvatar from '../components/UserAvatar';
 import ModelSelector from '../components/ModelSelector';
 import { defaultModel } from '@/lib/models';
 import Image from 'next/image';
+import FeedbackForm from '../components/FeedbackForm';
 
 export default function Home() {
   const [input, setInput] = useState('');
@@ -34,6 +38,7 @@ export default function Home() {
   const [showScrollButton, setShowScrollButton] = useState(false);
   const [showAlert, setShowAlert] = useState(false);
   const [showCommandPalette, setShowCommandPalette] = useState(false);
+  const [showFeedback, setShowFeedback] = useState(false);
   const [alertConfig, setAlertConfig] = useState<{
     title: string;
     message: string;
@@ -446,6 +451,20 @@ export default function Home() {
               </button>
             </div>
           </form>
+        )}
+
+        {/* Add feedback button */}
+        <button
+          onClick={() => setShowFeedback(true)}
+          className='fixed bottom-4 right-4 p-3 bg-blue-600 text-white rounded-full shadow-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors'
+          title='Send Feedback'
+        >
+          <FaComments className='h-6 w-6' />
+        </button>
+
+        {/* Feedback form modal */}
+        {showFeedback && (
+          <FeedbackForm onClose={() => setShowFeedback(false)} />
         )}
       </main>
 

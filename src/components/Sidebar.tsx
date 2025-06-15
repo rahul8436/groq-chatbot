@@ -3,7 +3,13 @@
 import React, { useState } from 'react';
 import { useConversations } from '../context/ConversationsContext';
 import { useUser } from '../context/UserContext';
-import { FaPlus, FaTrash, FaSignOutAlt } from 'react-icons/fa';
+import {
+  FaPlus,
+  FaTrash,
+  FaSignOutAlt,
+  FaHistory,
+  FaBroom,
+} from 'react-icons/fa';
 import { toast } from 'react-hot-toast';
 import AlertDialog from './AlertDialog';
 import UserAvatar from './UserAvatar';
@@ -16,6 +22,7 @@ export default function Sidebar() {
     createConversation,
     deleteConversation,
     setCurrentConversation,
+    clearAllConversations,
   } = useConversations();
   const { user, logout } = useUser();
   const [showAlert, setShowAlert] = useState(false);
@@ -52,7 +59,23 @@ export default function Sidebar() {
       type: 'warning',
       onConfirm: () => {
         deleteConversation(conversationId);
+        if (currentConversation?.id === conversationId) {
+          setCurrentConversation(null);
+        }
         toast.success('Conversation deleted!');
+      },
+    });
+    setShowAlert(true);
+  };
+
+  const handleClearAllConversations = () => {
+    setAlertConfig({
+      title: 'Clear All Conversations',
+      message:
+        'Are you sure you want to delete all conversations? This action cannot be undone.',
+      type: 'warning',
+      onConfirm: () => {
+        clearAllConversations();
       },
     });
     setShowAlert(true);
@@ -81,9 +104,9 @@ export default function Sidebar() {
       <div className='p-4'>
         <button
           onClick={createConversation}
-          className='w-full flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500'
+          className='w-full flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors duration-200'
         >
-          <FaPlus className='mr-2' />
+          <FaPlus size={14} />
           New Chat
         </button>
       </div>
@@ -122,7 +145,14 @@ export default function Sidebar() {
         </div>
       </div>
 
-      <div className='p-4 border-t border-gray-200 dark:border-gray-700'>
+      <div className='p-4 space-y-2 border-t border-gray-200 dark:border-gray-700'>
+        <button
+          onClick={handleClearAllConversations}
+          className='w-full flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors duration-200'
+        >
+          <FaBroom size={14} />
+          Clear All Conversations
+        </button>
         <ThemeToggle />
       </div>
 

@@ -23,6 +23,7 @@ interface ConversationsContextType {
   updateConversation: (id: string, messages: Message[]) => void;
   deleteConversation: (id: string) => void;
   setCurrentConversation: (conversation: Conversation | null) => void;
+  clearAllConversations: () => void;
 }
 
 const ConversationsContext = createContext<
@@ -110,6 +111,18 @@ export function ConversationsProvider({
     }
   };
 
+  const clearAllConversations = () => {
+    // Clear all conversation-related items from localStorage
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key && key.startsWith('conversations_')) {
+        localStorage.removeItem(key);
+      }
+    }
+    setConversations([]);
+    setCurrentConversation(null);
+  };
+
   if (!mounted) {
     return null;
   }
@@ -123,6 +136,7 @@ export function ConversationsProvider({
         updateConversation,
         deleteConversation,
         setCurrentConversation,
+        clearAllConversations,
       }}
     >
       {children}

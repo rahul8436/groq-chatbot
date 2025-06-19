@@ -32,6 +32,7 @@ import { defaultModel } from '@/lib/models';
 import Image from 'next/image';
 import FeedbackForm from '../components/FeedbackForm';
 import SpeechToText from '../components/SpeechToText';
+import Tesseract from 'tesseract.js';
 
 export default function Home() {
   const [input, setInput] = useState('');
@@ -68,6 +69,9 @@ export default function Home() {
     'text/plain',
     'application/json',
     'application/pdf',
+    'image/jpeg',
+    'image/png',
+    'image/gif',
     'text/markdown',
     'text/x-python',
     'text/javascript',
@@ -121,15 +125,28 @@ export default function Home() {
       }
 
       try {
-        const content = await readFileAsBase64(file);
-        const attachment: FileAttachment = {
-          name: file.name,
-          type: file.type,
-          size: file.size,
-          content,
-          url: file.type.startsWith('image/') ? content : undefined,
-        };
-        newAttachments.push(attachment);
+        if (file.type.startsWith('image/')) {
+          toast.loading('Extracting text from image...');
+          const { data } = await Tesseract.recognize(file, 'eng');
+          toast.dismiss();
+          if (data.text.trim()) {
+            setInput((prev) =>
+              prev ? prev + ' ' + data.text.trim() : data.text.trim()
+            );
+            toast.success('Text extracted from image!');
+          } else {
+            toast.error('No text found in image.');
+          }
+        } else {
+          const content = await readFileAsBase64(file);
+          const attachment: FileAttachment = {
+            name: file.name,
+            type: file.type,
+            size: file.size,
+            content,
+          };
+          newAttachments.push(attachment);
+        }
       } catch (error) {
         errors.push(`Failed to read ${file.name}`);
       }

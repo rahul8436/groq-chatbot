@@ -5335,7 +5335,7 @@ tesseract.js-core@^6.0.0:
 
 tesseract.js@^6.0.1:
   version "6.0.1"
-  resolved "https://registry.npmjs.org/tesseract.js/-/tesseract.js-6.0.1.tgz"
+  resolved "https://registry.yarnpkg.com/tesseract.js/-/tesseract.js-6.0.1.tgz#5b2ff39aae92d59cef79589a43a0f3ab963801cc"
   integrity sha512-/sPvMvrCtgxnNRCjbTYbr7BRu0yfWDsMZQ2a/T5aN/L1t8wUQN6tTWv6p6FwzpoEBA0jrN2UD2SX4QQFRdoDbA==
   dependencies:
     bmp-js "^0.1.0"

@@ -113,3 +113,11 @@ export default async function handler(
     });
   }
 }
+
+export const config = {
+  api: {
+    bodyParser: {
+      sizeLimit: '10mb', // Increase as needed
+    },
+  },
+};

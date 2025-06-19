@@ -199,42 +199,57 @@ export default function Home() {
     setAttachments([]);
 
     try {
-      const response = await axios.post('/api/chat', {
-        conversation: updatedMessages,
-        model: selectedModel.id,
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          conversation: updatedMessages,
+          model: selectedModel.id,
+        }),
       });
+
+      if (!response.ok) {
+        // Try to parse error from response
+        let errorMsg = `Error: ${response.status} ${response.statusText}`;
+        try {
+          const data = await response.json();
+          if (data.error) errorMsg = data.error;
+          if (data.details) errorMsg += `\n${data.details}`;
+        } catch {}
+        updateConversation(currentConversation.id, [
+          ...updatedMessages,
+          {
+            role: 'assistant',
+            content: `❌ ${errorMsg}`,
+            timestamp: new Date().toISOString(),
+          },
+        ]);
+        toast.error(errorMsg);
+        setIsLoading(false);
+        return;
+      }
+
+      const data = await response.json();
       updateConversation(currentConversation.id, [
         ...updatedMessages,
         {
           role: 'assistant',
-          content: response.data.response,
+          content: data.response,
           timestamp: new Date().toISOString(),
         },
       ]);
-    } catch (error) {
-      console.error('Error:', error);
-      if (axios.isAxiosError(error)) {
-        if (error.response?.status === 429) {
-          toast.error('Rate limit exceeded. Please try again later.', {
-            position: 'bottom-right',
-          });
-        } else {
-          toast.error(
-            `An error occurred: ${
-              error.response?.data?.message || error.message
-            }`,
-            {
-              position: 'bottom-right',
-            }
-          );
-        }
-      } else {
-        toast.error('An unexpected error occurred. Please try again.', {
-          position: 'bottom-right',
-        });
-      }
+    } catch (error: any) {
+      const errorMsg = error?.message || 'Unknown error occurred';
+      updateConversation(currentConversation.id, [
+        ...updatedMessages,
+        {
+          role: 'assistant',
+          content: `❌ Network or server error: ${errorMsg}`,
+          timestamp: new Date().toISOString(),
+        },
+      ]);
+      toast.error(errorMsg);
     }
-
     setIsLoading(false);
   };
 

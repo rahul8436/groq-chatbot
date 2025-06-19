@@ -12,50 +12,16 @@ import { FaCopy, FaCheck, FaPaperclip, FaDownload } from 'react-icons/fa';
 import { useTheme } from '../context/ThemeContext';
 import { FileAttachment } from '@/lib/types';
 import Image from 'next/image';
-
-interface CodeBlockProps {
-  language: string;
-  value: string;
-}
-
-const CodeBlock: React.FC<CodeBlockProps> = ({ language, value }) => {
-  const [copied, setCopied] = useState(false);
-  const { theme } = useTheme();
-
-  const copyToClipboard = async () => {
-    await navigator.clipboard.writeText(value);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
-
-  return (
-    <div className='relative group'>
-      <button
-        onClick={copyToClipboard}
-        className='absolute top-2 right-2 p-2 text-gray-400 hover:text-gray-200 bg-gray-800/50 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200'
-        title='Copy code'
-      >
-        {copied ? <FaCheck size={14} /> : <FaCopy size={14} />}
-      </button>
-      {/* @ts-ignore */}
-      <SyntaxHighlighter
-        language={language}
-        style={theme === 'dark' ? vscDarkPlus : vs}
-        customStyle={{
-          margin: 0,
-          borderRadius: '0.5rem',
-          padding: '1rem',
-        }}
-      >
-        {value}
-      </SyntaxHighlighter>
-    </div>
-  );
-};
+import CodeBlock from './CodeBlock';
 
 interface MarkdownMessageProps {
   content: string;
   attachments?: FileAttachment[];
+}
+
+interface CodeBlockProps {
+  language: string;
+  value: string;
 }
 
 const MarkdownMessage: React.FC<MarkdownMessageProps> = ({
@@ -125,16 +91,10 @@ const MarkdownMessage: React.FC<MarkdownMessageProps> = ({
           code({ node, inline, className, children, ...props }) {
             const match = /language-(\w+)/.exec(className || '');
             return !inline && match ? (
-              // @ts-ignore
-              <SyntaxHighlighter
-                // @ts-ignore
-                style={vscDarkPlus}
+              <CodeBlock
                 language={match[1]}
-                PreTag='div'
-                {...props}
-              >
-                {String(children).replace(/\n$/, '')}
-              </SyntaxHighlighter>
+                value={String(children).replace(/\n$/, '')}
+              />
             ) : (
               <code className={className} {...props}>
                 {children}

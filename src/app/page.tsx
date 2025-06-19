@@ -31,6 +31,7 @@ import ModelSelector from '../components/ModelSelector';
 import { defaultModel } from '@/lib/models';
 import Image from 'next/image';
 import FeedbackForm from '../components/FeedbackForm';
+import SpeechToText from '../components/SpeechToText';
 
 export default function Home() {
   const [input, setInput] = useState('');
@@ -67,9 +68,6 @@ export default function Home() {
     'text/plain',
     'application/json',
     'application/pdf',
-    'image/jpeg',
-    'image/png',
-    'image/gif',
     'text/markdown',
     'text/x-python',
     'text/javascript',
@@ -420,6 +418,12 @@ export default function Home() {
               >
                 <FaPaperclip size={20} />
               </button>
+              <SpeechToText
+                onTranscript={(text) =>
+                  setInput((prev) => (prev ? prev + ' ' + text : text))
+                }
+                disabled={isLoading}
+              />
               <TextareaAutosize
                 value={input}
                 onChange={(e) => setInput(e.target.value)}

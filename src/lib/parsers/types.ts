@@ -71,6 +71,7 @@ export const DOCUMENT_TYPES = {
   'text/csv': 'csv',
   'text/markdown': 'md',
   'application/json': 'json',
+  // Removed image types
 } as const;
 
 export type DocumentType = (typeof DOCUMENT_TYPES)[keyof typeof DOCUMENT_TYPES];

@@ -9,7 +9,7 @@ import { WordParser } from './word-parser';
 import { ExcelParser } from './excel-parser';
 import { PowerPointParser } from './powerpoint-parser';
 import { GenericParser } from './generic-parser';
-import { ImageParser } from './image-parser';
+// import { ImageParser } from './image-parser';
 
 export class DocumentParserFactory {
   private parsers: DocumentParser[];
@@ -20,7 +20,7 @@ export class DocumentParserFactory {
       new WordParser(),
       new ExcelParser(),
       new PowerPointParser(),
-      new ImageParser(),
+      // new ImageParser(),
       new GenericParser(),
     ];
   }

@@ -20,6 +20,6 @@ export interface ModelConfig {
   contextWindow?: number;
   maxCompletionTokens?: number;
   maxFileSize?: number;
-  category: 'chat' | 'audio' | 'guard';
+  category: 'chat' | 'audio' | 'guard' | 'speech' | 'system';
   isProduction?: boolean;
 }
